@@ -1,15 +1,26 @@
 from fastapi import FastAPI
 
+from app.database.database import database
+from app.utils.config import settings
+
 app = FastAPI(
-    title="Notice Board API",
-    version="1.0.0",
-    description="A FastAPI-based Notice Board Management System"
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    description="Notice Board Management API"
 )
+
+
+@app.on_event("startup")
+def startup():
+    database.create_tables()
+    print("✅ Database initialized successfully.")
 
 
 @app.get("/")
 async def home():
     return {
-        "message": "Welcome to Notice Board API",
-        "status": "Running Successfully"
+        "application": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "database": "Connected",
+        "status": "Running"
     }
