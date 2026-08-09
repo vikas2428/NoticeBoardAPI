@@ -45,6 +45,22 @@ class DatabaseManager:
                 )
                 """
             )
+    def execute(self, query, params=()):
+        with self.get_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, params)
+            return cursor.lastrowid
 
+    def fetch_one(self, query, params=()):
+        with self.get_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, params)
+            return cursor.fetchone()
+
+    def fetch_all(self, query, params=()):
+        with self.get_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, params)
+            return cursor.fetchall()
 
 database = DatabaseManager()

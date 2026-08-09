@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.database.database import database
 from app.utils.config import settings
+from app.routes.notice import router as notice_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -9,12 +10,15 @@ app = FastAPI(
     description="Notice Board Management API"
 )
 
+app.include_router(
+    notice_router,
+    prefix="/api",
+    tags=["Notices"]
+)
 
 @app.on_event("startup")
 def startup():
     database.create_tables()
-    print("✅ Database initialized successfully.")
-
 
 @app.get("/")
 async def home():
