@@ -1,3 +1,6 @@
+from fastapi import Depends
+from app.dependencies import get_notice_service
+from app.utils.decorators import log_execution_time
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import FileResponse
 
@@ -146,12 +149,15 @@ async def export_notices_txt():
     )
 
 @router.get("/notices/analytics")
-async def get_notice_analytics():
+@log_execution_time
+async def get_notice_analytics(
+    service=Depends(get_notice_service)
+):
     """
     Get notice statistics and analytics.
     """
 
-    notices = notice_service.get_all_notices()
+    notices = service.get_all_notices()
 
     return analytics_service.get_statistics(notices)
 

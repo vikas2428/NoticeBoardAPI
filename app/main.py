@@ -1,8 +1,11 @@
+import time
+
 from fastapi import FastAPI
 
 from app.database.database import database
 from app.utils.config import settings
 from app.routes.notice import router as notice_router
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -10,15 +13,40 @@ app = FastAPI(
     description="Notice Board Management API"
 )
 
+
+@app.middleware("http")
+async def request_logging_middleware(request, call_next):
+    """Log every HTTP request and its processing time."""
+
+    start_time = time.perf_counter()
+
+    response = await call_next(request)
+
+    process_time = time.perf_counter() - start_time
+
+    print(
+        f"[MIDDLEWARE] {request.method} "
+        f"{request.url.path} "
+        f"completed in {process_time:.6f} seconds",
+        flush=True
+    )
+
+    response.headers["X-Process-Time"] = str(process_time)
+
+    return response
+
+
 app.include_router(
     notice_router,
     prefix="/api",
     tags=["Notices"]
 )
 
+
 @app.on_event("startup")
 def startup():
     database.create_tables()
+
 
 @app.get("/")
 async def home():
