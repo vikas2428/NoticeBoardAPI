@@ -1,3 +1,4 @@
+from app.services.async_service import process_notices_async
 from fastapi import Depends
 from app.dependencies import get_notice_service
 from app.utils.decorators import log_execution_time
@@ -187,6 +188,22 @@ async def process_notices():
         "iterator_result": iterator_titles,
         "generator_result": generator_titles,
         "total_processed": len(notices)
+    }
+
+@router.get("/notices/async-processing")
+async def async_process_notices():
+    """
+    Process notices concurrently using asyncio.
+    """
+
+    notices = notice_service.get_all_notices()
+
+    processed_notices = await process_notices_async(notices)
+
+    return {
+        "method": "asyncio.gather",
+        "total_processed": len(processed_notices),
+        "results": processed_notices
     }
 
 @router.put("/notices/{notice_id}")
