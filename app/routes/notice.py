@@ -1,6 +1,10 @@
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import FileResponse
 
+from app.utils.notice_iterator import (
+    NoticeIterator,
+    notice_generator
+)
 from app.services.analytics_service import analytics_service
 from app.schemas.notice_schema import NoticeCreate, NoticeUpdate
 from app.services.notice_service import notice_service
@@ -150,6 +154,35 @@ async def get_notice_analytics():
     notices = notice_service.get_all_notices()
 
     return analytics_service.get_statistics(notices)
+
+@router.get("/notices/processing")
+async def process_notices():
+    """
+    Demonstrate iterator and generator processing.
+    """
+
+    notices = notice_service.get_all_notices()
+
+    # Custom iterator
+    iterator = NoticeIterator(notices)
+
+    iterator_titles = []
+
+    for notice in iterator:
+        iterator_titles.append(notice["title"])
+
+    # Generator
+    generator_titles = []
+
+    for notice in notice_generator(notices):
+        generator_titles.append(notice["title"])
+
+    return {
+        "iterator_result": iterator_titles,
+        "generator_result": generator_titles,
+        "total_processed": len(notices)
+    }
+
 @router.put("/notices/{notice_id}")
 async def update_notice(
     notice_id: int,
