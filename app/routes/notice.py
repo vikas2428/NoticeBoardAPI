@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import FileResponse
 
+from app.services.analytics_service import analytics_service
 from app.schemas.notice_schema import NoticeCreate, NoticeUpdate
 from app.services.notice_service import notice_service
 from app.utils.file_handler import file_handler
@@ -140,6 +141,15 @@ async def export_notices_txt():
         filename="notices.txt"
     )
 
+@router.get("/notices/analytics")
+async def get_notice_analytics():
+    """
+    Get notice statistics and analytics.
+    """
+
+    notices = notice_service.get_all_notices()
+
+    return analytics_service.get_statistics(notices)
 @router.put("/notices/{notice_id}")
 async def update_notice(
     notice_id: int,
