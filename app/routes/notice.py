@@ -1,3 +1,4 @@
+from fastapi import APIRouter, HTTPException
 from app.services.async_service import process_notices_async
 from fastapi import Depends
 from app.dependencies import get_notice_service
@@ -233,6 +234,23 @@ async def update_notice(
         "notice": updated_notice
     }
 
+@router.delete("/{notice_id}")
+def delete_notice(notice_id: int):
+    """
+    Delete a notice by ID.
+    """
+
+    deleted = notice_service.delete_notice(notice_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Notice not found"
+        )
+
+    return {
+        "message": "Notice deleted successfully"
+    }
 
 @router.patch("/notices/{notice_id}/archive")
 async def archive_notice(notice_id: int):

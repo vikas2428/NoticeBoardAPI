@@ -115,7 +115,26 @@ class NoticeService:
         )
 
         return self.get_notice_by_id(notice_id)
+    def delete_notice(self, notice_id: int):
+        """
+        Delete a notice by ID.
+        """
 
+        # Check whether notice exists
+        notice = self.get_notice_by_id(notice_id)
+
+        if notice is None:
+            return False
+
+        query = """
+        DELETE FROM notices
+        WHERE id = ?
+        """
+
+        database.execute(query, (notice_id,))
+
+        return True
+    
         def archive_notice(self, notice_id: int):
             """
             Archive a notice without permanently deleting it.
