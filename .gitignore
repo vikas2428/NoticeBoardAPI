@@ -4,5 +4,7 @@ __pycache__/
 .env
 .idea/
 .vscode/
-.pytest_cache/data/*.db
+.pytest_cache/
+
+data/*.db
 exports/*
