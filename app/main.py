@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 import time
 
 from fastapi import FastAPI
@@ -16,7 +17,9 @@ app = FastAPI(
 
 @app.middleware("http")
 async def request_logging_middleware(request, call_next):
-    """Log every HTTP request and its processing time."""
+    """
+    Log every HTTP request and its processing time.
+    """
 
     start_time = time.perf_counter()
 
@@ -25,10 +28,11 @@ async def request_logging_middleware(request, call_next):
     process_time = time.perf_counter() - start_time
 
     print(
-        f"[MIDDLEWARE] {request.method} "
+        f"[MIDDLEWARE] "
+        f"{request.method} "
         f"{request.url.path} "
-        f"completed in {process_time:.6f} seconds",
-        flush=True
+        f"completed in "
+        f"{process_time:.6f} seconds"
     )
 
     response.headers["X-Process-Time"] = str(process_time)
@@ -56,3 +60,7 @@ async def home():
         "database": "Connected",
         "status": "Running"
     }
+
+@app.get("/dashboard", include_in_schema=False)
+async def dashboard():
+    return FileResponse("app/frontend/index.html")

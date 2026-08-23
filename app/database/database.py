@@ -33,18 +33,20 @@ class DatabaseManager:
             cursor = connection.cursor()
 
             cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS notices (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    category TEXT NOT NULL,
-                    created_at TEXT NOT NULL,
-                    expiry_date TEXT,
-                    status TEXT NOT NULL DEFAULT 'Active'
-                )
-                """
+                    """
+                    CREATE TABLE IF NOT EXISTS notices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        category TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expiry_date TEXT,
+        status TEXT NOT NULL DEFAULT 'Active',
+        deleted_at TEXT
+        )
+        """
             )
+            
     def execute(self, query, params=()):
         with self.get_connection() as connection:
             cursor = connection.cursor()

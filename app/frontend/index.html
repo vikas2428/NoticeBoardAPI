@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoticeBoard — Campus Feed</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07070a;--card:rgba(20,20,27,.78);--card-hover:rgba(27,27,36,.95);--border:rgba(255,255,255,.08);--text:#f5f5f7;--muted:#92929f;--purple:#8b5cf6;--pink:#ec4899;--cyan:#22d3ee;--green:#22c55e;--red:#ef4444;--orange:#f59e0b}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:radial-gradient(circle at 10% 0%,rgba(139,92,246,.15),transparent 30%),radial-gradient(circle at 90% 10%,rgba(34,211,238,.10),transparent 25%),radial-gradient(circle at 50% 100%,rgba(236,72,153,.08),transparent 30%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+.navbar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 6%;background:rgba(7,7,10,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;letter-spacing:-.5px}
+.brand-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:linear-gradient(135deg,var(--purple),var(--pink));box-shadow:0 0 25px rgba(139,92,246,.35)}
+.brand-text span{display:block;margin-top:2px;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.5px}
+button{border:none;cursor:pointer;font-family:inherit;font-weight:700;transition:.2s ease}
+button:hover{transform:translateY(-2px)}
+.primary{color:#fff;background:linear-gradient(135deg,var(--purple),var(--pink));padding:12px 18px;border-radius:12px;box-shadow:0 8px 25px rgba(139,92,246,.25)}
+.ghost{color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:11px 16px;border-radius:11px}
+.ghost:hover{color:#fff;background:rgba(255,255,255,.09)}
+.container{width:min(1250px,92%);margin:auto;padding:45px 0 70px}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:35px}
+.eyebrow{color:var(--purple);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.hero h1{font-size:clamp(32px,5vw,54px);line-height:1;letter-spacing:-2.5px;background:linear-gradient(90deg,#fff,#c4b5fd,#f9a8d4);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);margin-top:12px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:25px}
+.stat-card{position:relative;overflow:hidden;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(16px);transition:.25s ease}
+.stat-card:hover{transform:translateY(-4px);background:var(--card-hover);border-color:rgba(139,92,246,.25)}
+.stat-label{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1.2px}
+.stat-value{margin-top:9px;font-size:30px;font-weight:800}
+.toolbar{padding:14px;background:var(--card);border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(16px);margin-bottom:18px}
+.search-row{display:flex;gap:10px}
+.search-wrapper{position:relative;flex:1}
+.search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search-wrapper input{width:100%;padding:13px 15px 13px 43px;color:#fff;background:rgba(255,255,255,.045);border:1px solid var(--border);border-radius:12px;outline:none;font-family:inherit}
+.filters{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.filter-btn,.export-row button{padding:9px 14px;border-radius:10px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.filter-btn:hover,.filter-btn.active{color:#fff;background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(236,72,153,.15));border-color:rgba(139,92,246,.35)}
+.export-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:25px}
+.notices{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.notice{position:relative;overflow:hidden;padding:22px;background:var(--card);border:1px solid var(--border);border-radius:20px;backdrop-filter:blur(16px);transition:.25s ease}
+.notice:hover{transform:translateY(-5px);background:var(--card-hover);border-color:rgba(139,92,246,.25);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.notice::before{content:"";position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--purple),var(--pink),var(--cyan))}
+.notice-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.notice h2{font-size:19px;line-height:1.3;letter-spacing:-.5px}
+.notice-description{color:var(--muted);line-height:1.6;font-size:13px;margin:14px 0}
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.badge{padding:6px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(139,92,246,.12);color:#c4b5fd;border:1px solid rgba(139,92,246,.16)}
+.badge.active{background:rgba(34,197,94,.10);color:#86efac;border-color:rgba(34,197,94,.15)}
+.badge.archived{background:rgba(148,163,184,.10);color:#a1a1aa;border-color:rgba(148,163,184,.15)}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.action-btn{padding:8px 11px;border-radius:9px;font-size:11px}
+.edit{background:rgba(245,158,11,.12);color:#fbbf24}
+.archive{background:rgba(139,92,246,.12);color:#c4b5fd}
+.delete{background:rgba(239,68,68,.10);color:#f87171}
+.empty{grid-column:1/-1;padding:65px 20px;text-align:center;background:var(--card);border:1px dashed rgba(255,255,255,.12);border-radius:20px;color:var(--muted)}
+.empty-icon{font-size:38px;margin-bottom:12px}
+.modal{display:none;position:fixed;inset:0;z-index:100;justify-content:center;align-items:center;padding:20px;background:rgba(0,0,0,.75);backdrop-filter:blur(12px)}
+.modal-box{width:500px;max-width:100%;padding:27px;background:linear-gradient(145deg,rgba(28,28,37,.98),rgba(15,15,21,.98));border:1px solid rgba(255,255,255,.1);border-radius:22px;box-shadow:0 30px 100px rgba(0,0,0,.6)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:23px}
+.close-btn{width:35px;height:35px;border-radius:10px;color:var(--muted);background:rgba(255,255,255,.05);font-size:18px}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:7px;color:#c4c4cc;font-size:11px;font-weight:700;letter-spacing:.5px}
+.form-group input,.form-group textarea{width:100%;padding:12px;color:#fff;background:rgba(255,255,255,.045);border:1px solid var(--border);border-radius:11px;outline:none;font-family:inherit}
+.form-group textarea{min-height:110px;resize:vertical}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.toast-container{position:fixed;right:22px;bottom:22px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{min-width:280px;padding:14px 17px;background:rgba(25,25,32,.95);border:1px solid var(--border);border-radius:13px;color:#fff;box-shadow:0 15px 40px rgba(0,0,0,.35);animation:toastIn .25s ease}
+.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.notices{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column;gap:20px}}
+@media(max-width:550px){.navbar{padding:15px 4%}.brand-text span{display:none}.container{width:94%;padding-top:30px}.stats{grid-template-columns:1fr 1fr;gap:9px}.stat-card{padding:15px}.stat-value{font-size:24px}.search-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="brand">
+        <div class="brand-icon">📢</div>
+        <div class="brand-text">NoticeBoard<span>Campus Management System</span></div>
+    </div>
+    <button class="primary" onclick="openModal()">＋ New Notice</button>
+</nav>
+
+<main class="container">
+    <section class="hero">
+        <div>
+            <div class="eyebrow">✦ Campus Feed</div>
+            <h1>What's happening?</h1>
+            <p>Stay updated. Stay ahead. Keep your campus informed.</p>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat-card"><div class="stat-label">TOTAL NOTICES</div><div class="stat-value" id="total">0</div></div>
+        <div class="stat-card"><div class="stat-label">ACTIVE</div><div class="stat-value" id="active">0</div></div>
+        <div class="stat-card"><div class="stat-label">ARCHIVED</div><div class="stat-value" id="archived">0</div></div>
+        <div class="stat-card"><div class="stat-label">CATEGORIES</div><div class="stat-value" id="categories">0</div></div>
+    </section>
+
+    <section class="toolbar">
+        <div class="search-row">
+            <div class="search-wrapper">
+                <span class="search-icon">⌕</span>
+                <input id="searchInput" type="text" placeholder="Search notices, categories..." onkeydown="handleSearchKey(event)">
+            </div>
+            <button class="primary" onclick="searchNotices()">Search</button>
+            <button class="ghost" onclick="loadNotices()">↻</button>
+        </div>
+        <div class="filters">
+            <button id="filterAll" class="filter-btn active" onclick="showAllNotices()">◉ All</button>
+            <button id="filterActive" class="filter-btn" onclick="showActiveNotices()">🟢 Active</button>
+            <button id="filterArchived" class="filter-btn" onclick="showArchivedNotices()">📦 Archived</button>
+        </div>
+    </section>
+
+    <div class="export-row">
+        <button onclick="downloadFile('json')">↓ JSON</button>
+        <button onclick="downloadFile('csv')">↓ CSV</button>
+        <button onclick="downloadFile('txt')">↓ TXT</button>
+        <button onclick="window.open('/docs','_blank')">⚙ API Docs</button>
+    </div>
+
+    <section id="notices" class="notices"></section>
+</main>
+
+<div id="modal" class="modal" onclick="closeModalOutside(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 id="modalTitle">Create Notice</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <input type="hidden" id="noticeId">
+
+        <div class="form-group"><label>TITLE</label><input id="title" placeholder="e.g. Python Workshop"></div>
+        <div class="form-group"><label>DESCRIPTION</label><textarea id="description" placeholder="Tell students what's happening..."></textarea></div>
+        <div class="form-group"><label>CATEGORY</label><input id="category" placeholder="e.g. Workshop, Exam, Event"></div>
+        <div class="form-group"><label>EXPIRY DATE</label><input id="expiry" type="date"></div>
+
+        <div class="modal-actions">
+            <button class="ghost" onclick="closeModal()">Cancel</button>
+            <button class="primary" onclick="saveNotice()">Save Notice</button>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+"use strict";
+
+let notices = [];
+let currentFilter = "all";
+
+async function loadNotices() {
+    try {
+        const response = await fetch("/api/notices", {
+            method: "GET",
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+
+        // Support both a plain array and APIs returning {results: [...]}
+        notices = Array.isArray(data) ? data : (Array.isArray(data.results) ? data.results : []);
+
+        updateStats(notices);
+        currentFilter = "all";
+        setActiveFilter("filterAll");
+        renderNotices(notices);
+
+    } catch (error) {
+        console.error("Load notices failed:", error);
+        updateStats([]);
+        document.getElementById("notices").innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⚠️</div>
+                <h3>Couldn't load notices</h3>
+                <p style="margin-top:8px">Check that the FastAPI server is running and /api/notices is available.</p>
+            </div>`;
+    }
+}
+
+function setActiveFilter(id) {
+    document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
+    const button = document.getElementById(id);
+    if (button) button.classList.add("active");
+}
+
+function showAllNotices() {
+    currentFilter = "all";
+    setActiveFilter("filterAll");
+    renderNotices(notices);
+}
+
+function showActiveNotices() {
+    currentFilter = "active";
+    setActiveFilter("filterActive");
+    renderNotices(notices.filter(notice => String(notice.status || "").toLowerCase() === "active"));
+}
+
+function showArchivedNotices() {
+    currentFilter = "archived";
+    setActiveFilter("filterArchived");
+    renderNotices(notices.filter(notice => String(notice.status || "").toLowerCase() === "archived"));
+}
+
+/*
+ * IMPORTANT FIX:
+ * The broken code had a ${notice.status ...} template expression directly
+ * inside the function before "container" existed. That is what caused:
+ * Uncaught SyntaxError: Unexpected token '{'
+ *
+ * The action button is now created INSIDE data.map(), where "notice" exists.
+ */
+function renderNotices(data) {
+    const container = document.getElementById("notices");
+
+    if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">📭</div>
+                <h3>No notices found</h3>
+                <p style="margin-top:8px">Create a notice or change your filter/search.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = data.map(notice => {
+        const status = String(notice.status || "Active");
+        const statusClass = status.toLowerCase() === "archived" ? "archived" : "active";
+
+        const actionButton = status.toLowerCase() === "archived"
+            ? `<button class="action-btn archive" onclick="unarchiveNotice(${Number(notice.id)})">♻️ Unarchive</button>`
+            : `<button class="action-btn archive" onclick="archiveNotice(${Number(notice.id)})">📦 Archive</button>`;
+
+        return `
+            <article class="notice">
+                <div class="notice-top">
+                    <h2>${escapeHtml(notice.title)}</h2>
+                    <span class="badge ${statusClass}">${escapeHtml(status)}</span>
+                </div>
+
+                <div class="notice-description">
+                    ${escapeHtml(notice.description)}
+                </div>
+
+                <div class="meta">
+                    <span class="badge">📁 ${escapeHtml(notice.category)}</span>
+
+                    ${notice.expiry_date ? `
+                        <span class="badge">📅 ${escapeHtml(notice.expiry_date)}</span>
+                    ` : ""}
+
+                    ${notice.created_at ? `
+                        <span class="badge">🕒 ${escapeHtml(notice.created_at)}</span>
+                    ` : ""}
+                </div>
+
+                <div class="actions">
+                    <button class="action-btn edit" onclick="editNotice(${Number(notice.id)})">✏ Edit</button>
+                    ${actionButton}
+                    <button class="action-btn delete" onclick="deleteNotice(${Number(notice.id)})">🗑 Delete</button>
+                </div>
+            </article>`;
+    }).join("");
+}
+
+function updateStats(data) {
+    const total = data.length;
+    const active = data.filter(n => String(n.status || "").toLowerCase() === "active").length;
+    const archived = data.filter(n => String(n.status || "").toLowerCase() === "archived").length;
+    const categories = new Set(
+        data.map(n => n.category).filter(Boolean).map(String)
+    ).size;
+
+    document.getElementById("total").textContent = total;
+    document.getElementById("active").textContent = active;
+    document.getElementById("archived").textContent = archived;
+    document.getElementById("categories").textContent = categories;
+}
+
+function openModal() {
+    document.getElementById("modalTitle").textContent = "Create Notice";
+    document.getElementById("noticeId").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("expiry").value = "";
+    document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+function closeModalOutside(event) {
+    if (event.target.id === "modal") closeModal();
+}
+
+async function saveNotice() {
+    const id = document.getElementById("noticeId").value;
+
+    const notice = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        category: document.getElementById("category").value.trim(),
+        expiry_date: document.getElementById("expiry").value || null
+    };
+
+    if (!notice.title || !notice.description || !notice.category) {
+        showToast("Please fill all required fields.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            id ? `/api/notices/${id}` : "/api/notices",
+            {
+                method: id ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(notice)
+            }
+        );
+
+        if (!response.ok) {
+            const error = await response.text();
+            console.error("Save error:", error);
+            showToast(`Unable to save notice (${response.status})`, "error");
+            return;
+        }
+
+        closeModal();
+        showToast(id ? "Notice updated successfully." : "Notice created successfully.", "success");
+        await loadNotices();
+
+    } catch (error) {
+        console.error("Save failed:", error);
+        showToast("Unable to connect to API.", "error");
+    }
+}
+
+function editNotice(id) {
+    const notice = notices.find(n => Number(n.id) === Number(id));
+
+    if (!notice) {
+        showToast("Notice not found.", "error");
+        return;
+    }
+
+    document.getElementById("modalTitle").textContent = "Edit Notice";
+    document.getElementById("noticeId").value = notice.id;
+    document.getElementById("title").value = notice.title || "";
+    document.getElementById("description").value = notice.description || "";
+    document.getElementById("category").value = notice.category || "";
+    document.getElementById("expiry").value = notice.expiry_date || "";
+    document.getElementById("modal").style.display = "flex";
+}
+
+async function archiveNotice(id) {
+    if (!confirm("Archive this notice?")) return;
+
+    try {
+        const response = await fetch(`/api/notices/${id}/archive`, {
+            method: "PATCH",
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Archive error:", errorText);
+            showToast(`Unable to archive notice (${response.status})`, "error");
+            return;
+        }
+
+        showToast("Notice archived successfully.", "success");
+        await loadNotices();
+
+    } catch (error) {
+        console.error("Archive failed:", error);
+        showToast("Unable to connect to API.", "error");
+    }
+}
+
+async function unarchiveNotice(id) {
+    if (!confirm("Unarchive this notice?")) return;
+
+    try {
+        console.log("Unarchiving notice ID:", id);
+
+        const response = await fetch(`/api/notices/${id}/restore`, {
+            method: "PATCH",
+            headers: { "Accept": "application/json" }
+        });
+
+        console.log("Unarchive response status:", response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Unarchive error:", errorText);
+            showToast(`Unable to unarchive notice (${response.status})`, "error");
+            return;
+        }
+
+        showToast("Notice unarchived successfully.", "success");
+        await loadNotices();
+
+    } catch (error) {
+        console.error("Unarchive request failed:", error);
+        showToast("Unable to connect to the Notice Board API.", "error");
+    }
+}
+
+async function deleteNotice(id) {
+    if (!confirm("Delete this notice permanently?")) return;
+
+    try {
+        const response = await fetch(`/api/notices/${id}`, {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+        });
+
+        console.log("Delete status:", response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Delete error:", errorText);
+            showToast(`Unable to delete (${response.status})`, "error");
+            return;
+        }
+
+        showToast("Notice deleted successfully.", "success");
+        await loadNotices();
+
+    } catch (error) {
+        console.error("Delete failed:", error);
+        showToast("Unable to connect to API.", "error");
+    }
+}
+
+async function searchNotices() {
+    const input = document.getElementById("searchInput");
+    const keyword = input.value.trim();
+
+    if (!keyword) {
+        showAllNotices();
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `/api/notices/search?keyword=${encodeURIComponent(keyword)}`,
+            { headers: { "Accept": "application/json" } }
+        );
+
+        if (!response.ok) {
+            const error = await response.text();
+            console.error("Search error:", error);
+            showToast(`Search failed (${response.status})`, "error");
+            return;
+        }
+
+        const data = await response.json();
+        const results = Array.isArray(data) ? data : (data.results || []);
+
+        currentFilter = "search";
+        document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
+        renderNotices(results);
+
+    } catch (error) {
+        console.error("Search failed:", error);
+        showToast("Search failed. Check the API.", "error");
+    }
+}
+
+function handleSearchKey(event) {
+    if (event.key === "Enter") searchNotices();
+}
+
+function downloadFile(type) {
+    window.open(`/api/notices/export/${type}`, "_blank");
+}
+
+function showToast(message, type = "success") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(30px)";
+        setTimeout(() => toast.remove(), 250);
+    }, 3000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}
+
+document.addEventListener("DOMContentLoaded", loadNotices);
+</script>
+</body>
+</html>
