@@ -395,7 +395,7 @@ async function unarchiveNotice(id) {
     try {
         console.log("Unarchiving notice ID:", id);
 
-        const response = await fetch(`/api/notices/${id}/restore`, {
+        const response = await fetch(`/api/notices/${id}/unarchive`, {
             method: "PATCH",
             headers: { "Accept": "application/json" }
         });
@@ -417,7 +417,6 @@ async function unarchiveNotice(id) {
         showToast("Unable to connect to the Notice Board API.", "error");
     }
 }
-
 async function deleteNotice(id) {
     if (!confirm("Delete this notice permanently?")) return;
 
