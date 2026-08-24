@@ -17,8 +17,3 @@ services:
 
       - key: DATABASE_PATH
         value: /var/data/notice_board.db
-
-    disk:
-      name: notice-board-data
-      mountPath: /var/data
-      sizeGB: 1
